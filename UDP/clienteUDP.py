@@ -2,8 +2,8 @@ import socket
 from datetime import datetime 
 
 def enviar_mensagem(sock, nome, ip, porta):
-    mensagem = input(f"Digite sua mensagem: ")
-    mensagem = f"[{datetime.now().strftime('%d-%m-%Y %H:%M:%S')}] {nome}: {mensagem}"
+    mensagem = input(f"Digite sua mensagem: \n")
+    mensagem = f"{nome}: {mensagem}"
     sock.sendto(mensagem.encode(encoding="utf-8"), (ip, porta))
 
 def main():
@@ -19,7 +19,7 @@ def main():
         try: 
             enviar_mensagem(sock, nome, ip, porta)
             data, endereco = sock.recvfrom(1024)
-            print(f"Resposta do servidor: {data.decode()}\n")
+            print(f"Resposta: {data.decode()}\n")
 
         except socket.timeout:
             print("Tempo de espera excedido, tentando novamente.\n")

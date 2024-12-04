@@ -7,6 +7,8 @@ def main():
     porta = int(input("Digite a porta em que deseja ouvir: "))
     sock.bind((ip, porta))
 
+    clientes = {}
+
     print(f"Ouvindo na porta {porta}")
 
     while True:
@@ -14,11 +16,18 @@ def main():
             dados, endereco = sock.recvfrom(1024)
             mensagem = f"Recebido de {str(endereco)}: {dados.decode()}\n"
             print(mensagem)
-            resposta = f"Mensagem recebida.\n"
-            sock.sendto(resposta.encode(), endereco)
+
+            clientes[endereco] = mensagem
+
+            for cliente, msg in clientes.items():
+                if cliente != endereco:
+                    sock.sendto(f"{endereco}: {mensagem}".encode(), cliente)
+
         except Exception as e:
             print(f"Erro: {e}")
             break
+            
     sock.close()
+
 if __name__ == "__main__":
     main()
