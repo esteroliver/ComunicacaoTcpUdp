@@ -12,9 +12,9 @@ def main():
     while True:
         try:
             dados, endereco = sock.recvfrom(1024)
-            mensagem = f"Recebido de {str(endereco)}: {dados.decode()}"
+            mensagem = f"Recebido de {str(endereco)}: {dados.decode()}\n"
             print(mensagem)
-            resposta = f"Mensagem recebida."
+            resposta = f"Mensagem recebida.\n"
             sock.sendto(resposta.encode(), endereco)
         except Exception as e:
             print(f"Erro: {e}")
