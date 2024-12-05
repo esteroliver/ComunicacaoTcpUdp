@@ -1,28 +1,44 @@
-import socket 
+import socket
+import threading
+
+# Lista para armazenar as conexões dos clientes
+clientes = []
+
+def gerenciar_cliente(conexao, endereco):
+    print(f"Cliente conectado: {endereco}")
+    while True:
+        try:
+            mensagem = conexao.recv(1024)
+            if not mensagem:
+                break
+            # Repassar a mensagem para os outros clientes
+            print(f"Mensagem recebida de {endereco}: {mensagem.decode('utf-8')}")
+            for cliente in clientes:
+                if cliente != conexao:  # Não envia a mensagem de volta ao remetente
+                    cliente.send(mensagem)
+        except:
+            break
+    # Remove o cliente desconectado da lista
+    print(f"Cliente desconectado: {endereco}")
+    clientes.remove(conexao)
+    conexao.close()
 
 def servidor():
-    # Cria o socket tcp
+    # Cria o socket TCP
     Socket_tcp_serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    Porta = int(input("Qual é a porta que o servidor vai ouvir? "))
+    
+    # Estabelece a conexão
+    Socket_tcp_serv.bind(('', Porta))
+    Socket_tcp_serv.listen(5)
+    print("Servidor escutando...")
 
-    # Solicitar a porta que o servidor vai ouvir
-    Porta = int(input("Qual é a porta que o servidor vai ouvir?"))
+    while True:
+        # Aceitar conexões de clientes
+        conexao, endereco = Socket_tcp_serv.accept()
+        clientes.append(conexao)  # Armazena o cliente
+        # Cria uma nova thread para gerenciar o cliente
+        threading.Thread(target=gerenciar_cliente, args=(conexao, endereco)).start()
 
-    # Solicitar o IP do servidor
-    ip_servidor = input("Digite o IP do servidor que deseja se conectar: ")
-
-    # Bind do IP e da porta para começar a ouvir. Estabelece conexão
-    Socket_tcp_serv.bind((ip_servidor, Porta))
-
-    # Começar a escutar
-    Socket_tcp_serv.listen(1)
-
-    # Aceitar a conexão do cliente
-    conexao, endereco = Socket_tcp_serv.accept()  # Agora a aceitação da conexão está dentro da função
-
-    # Chat
-    while True: 
-        # Receber a mensagem do cliente
-        mensagem = conexao.recv(1024)
-        if not mensagem:
-            break  # Se não houver mensagem, sai do loop
-        print("Cliente enviou: ", mensagem.decode("utf-8"))
+if __name__ == "__main__":
+    servidor()
